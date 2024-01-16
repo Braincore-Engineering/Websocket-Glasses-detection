@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Prediction</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+</head>
+<body>
+    <h1>Webcam Prediction</h1>
+    <img id="webcamImage" src="" alt="Webcam Image">
+    <p id="prediction"></p>
+
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.on('connect', function() {
+            socket.emit('request_prediction');
+        });
+
+        socket.on('prediction', function(data) {
+            document.getElementById('webcamImage').src = 'data:image/jpeg;base64,' + btoa(String.fromCharCode.apply(null, new Uint8Array(data.image)));
+            document.getElementById('prediction').innerText = 'Class: ' + data.class_name + ' - Confidence: ' + data.confidence + '%';
+        });
+
+        socket.on('disconnect', function() {
+            console.log('Server disconnected');
+        });
+    </script>
+</body>
+</html>
